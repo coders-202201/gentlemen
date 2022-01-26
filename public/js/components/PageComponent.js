@@ -1,8 +1,12 @@
+import gentlemenAPI from "../../data/gentlemen.js";
 import ButtonComponent from "./ButtonComponent.js";
 import Component from "./Component.js";
+import GentlemanComponent from "./GentlemanComponent.js";
 import InfoComponent from "./InfoComponent.js";
 
 class PageComponent extends Component {
+  gentlemen = gentlemenAPI;
+
   constructor(parentElement) {
     super(parentElement, "page");
 
@@ -18,93 +22,65 @@ class PageComponent extends Component {
       <section class="controls">
       </section>
       <main class="main">
-        <ul class="gentlemen">
-          <li class="gentleman">
-            <div class="gentleman__avatar-container">
-              <img
-                class="gentleman__avatar"
-                src="img/fary.jpg"
-                alt="El Fary apuntándote con el dedo"
-              />
-              <span class="gentleman__initial">F</span>
-            </div>
-            <div class="gentleman__data-container">
-              <h2 class="gentleman__name">El Fary</h2>
-              <ul class="gentleman__data-list">
-                <li class="gentleman__data">
-                  <span class="gentleman__data-label">Profesión:</span>
-                  Influencer
-                </li>
-                <li class="gentleman__data">
-                  <span class="gentleman__data-label">Estado:</span> RIP
-                </li>
-                <li class="gentleman__data">
-                  <span class="gentleman__data-label">Twitter:</span> pendiente
-                </li>
-              </ul>
-            </div>
-            <i class="icon gentleman__icon fas fa-check"></i>
-          </li>
-          <li class="gentleman">
-            <div class="gentleman__avatar-container">
-              <img
-                class="gentleman__avatar"
-                src="img/fary.jpg"
-                alt="El Fary apuntándote con el dedo"
-              />
-              <span class="gentleman__initial">F</span>
-            </div>
-            <div class="gentleman__data-container">
-              <h2 class="gentleman__name">El Fary</h2>
-              <ul class="gentleman__data-list">
-                <li class="gentleman__data">
-                  <span class="gentleman__data-label">Profesión:</span>
-                  Influencer
-                </li>
-                <li class="gentleman__data">
-                  <span class="gentleman__data-label">Estado:</span> RIP
-                </li>
-                <li class="gentleman__data">
-                  <span class="gentleman__data-label">Twitter:</span> pendiente
-                </li>
-              </ul>
-            </div>
-            <i class="icon gentleman__icon fas fa-check"></i>
-          </li>
-          <li class="gentleman">
-            <div class="gentleman__avatar-container">
-              <img
-                class="gentleman__avatar"
-                src="img/fary.jpg"
-                alt="El Fary apuntándote con el dedo"
-              />
-              <span class="gentleman__initial">F</span>
-            </div>
-            <div class="gentleman__data-container">
-              <h2 class="gentleman__name">El Fary</h2>
-              <ul class="gentleman__data-list">
-                <li class="gentleman__data">
-                  <span class="gentleman__data-label">Profesión:</span>
-                  Influencer
-                </li>
-                <li class="gentleman__data">
-                  <span class="gentleman__data-label">Estado:</span> RIP
-                </li>
-                <li class="gentleman__data">
-                  <span class="gentleman__data-label">Twitter:</span> pendiente
-                </li>
-              </ul>
-            </div>
-            <i class="icon gentleman__icon fas fa-check"></i>
-          </li>
+        <ul class="gentlemen">          
         </ul>
       </main>
     </div>
     `;
 
+    this.renderControlsContainer();
+    this.renderGentlemenList();
+  }
+
+  renderControlsContainer() {
+    this.renderInfoComponent();
+    this.renderButtonComponent();
+  }
+
+  renderButtonComponent() {
     const controls = this.element.querySelector(".controls");
-    new InfoComponent(controls, "p", 0);
-    new ButtonComponent(controls, "button button--select", "Marcar todos");
+    controls.querySelector(".button")?.remove();
+    new ButtonComponent(controls, "button button--select", "Marcar todos", () =>
+      this.selectAllGentlemen()
+    );
+  }
+
+  renderInfoComponent() {
+    const controls = this.element.querySelector(".controls");
+    controls.querySelector(".info")?.remove();
+    const totalSelectedGentlemen = this.gentlemen.filter(
+      (gentleman) => gentleman.selected
+    ).length;
+
+    new InfoComponent(controls, "p", totalSelectedGentlemen);
+  }
+
+  renderGentlemenList() {
+    const gentlemenContainer = this.element.querySelector(".gentlemen");
+    gentlemenContainer.innerHTML = "";
+    this.gentlemen.forEach((gentleman) => {
+      new GentlemanComponent(gentlemenContainer, "li", gentleman, () =>
+        this.toggleGentleman(gentleman.id)
+      );
+    });
+  }
+
+  toggleGentleman(id) {
+    const gentlemanFound = this.gentlemen.find(
+      (gentleman) => gentleman.id === id
+    );
+    gentlemanFound.selected = !gentlemanFound.selected;
+    this.renderGentlemenList();
+    this.renderControlsContainer();
+  }
+
+  selectAllGentlemen() {
+    this.gentlemen = this.gentlemen.map((gentleman) => ({
+      ...gentleman,
+      selected: true,
+    }));
+    this.renderGentlemenList();
+    this.renderControlsContainer();
   }
 }
 
